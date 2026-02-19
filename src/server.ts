@@ -50,6 +50,9 @@ initDb()
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello Next level Developer!')
 })
+// users crud operations
+
+
 
 app.post("/users", async (req: Request, res: Response) => {
     
@@ -65,8 +68,30 @@ try {
     res.status(500).json({ success: false, message: error.message });
 }
 
-   
 });
+app.get("/users", async(req: Request, res: Response)=>{
+    try {
+        const result = await pool.query(`SELECT * FROM users`)
+        res.status(200).json({ success: true, data: result.rows })
+    } catch (error : any) {
+        res.status(500).json({ success: false, message: error.message, details: error });
+    }
+})
+
+// get users by id 
+app.get("/users/:id", async (req: Request, res: Response)=>{
+    try {
+        const result = await pool.query(`SELECT * FROM users WHERE id = $1`, [req.params.id])
+        if(result.rows.length === 0){
+            return res.status(404).json({ success: false, message: "User not found" })
+        }
+        res.status(200).json({ success: true, data: result.rows[0] })
+    } catch (error : any) {
+        res.status(500).json({ success: false, message: error.message, details: error });
+    }
+
+})
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
