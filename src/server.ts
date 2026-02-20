@@ -92,6 +92,35 @@ app.get("/users/:id", async (req: Request, res: Response)=>{
 
 })
 
+// update user by id 
+
+app.put("/users/:id", async (req: Request, res: Response)=>{
+    const {name, email} = req.body 
+    try {
+        const result = await pool.query(`UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING *`, [name, email, req.params.id])
+        if(result.rows.length === 0){
+            return res.status(404).json({ success: false, message: "User not found" })
+        }
+        res.status(200).json({ success: true, message: "User updated successfully", data: result.rows[0] })
+    } catch (error : any) {
+        res.status(500).json({ success: false, message: error.message, details: error });
+    }
+})
+
+// delete user by id 
+
+app.delete("/users/:id", async (req: Request, res: Response)=>{
+    try {
+        const result = await pool.query(`DELETE FROM users WHERE id = $1 `, [req.params.id])
+        if(result.rowCount === 0){
+            return res.status(404).json({ success: false, message: "User not found" })
+        }
+        res.status(200).json({ success: true, data: null, message: "User deleted successfully" })
+    } catch (error : any) {
+        res.status(500).json({ success: false, message: error.message, details: error });
+    }
+
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
