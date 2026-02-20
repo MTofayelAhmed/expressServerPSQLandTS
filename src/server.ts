@@ -1,90 +1,77 @@
-import express, { NextFunction, Request, Response }  from 'express'
-import {Pool} from "pg"
-import dotenv from 'dotenv'
-import path from "path"
+import express from 'express'
+import type { NextFunction, Request, Response } from 'express'
 
-dotenv.config({path: path.join(process.cwd(), ".env")})
+import config from './config'
+import initDb, { pool } from './config/db'
+import logger from './middleware/logger'
+import { userRouter } from './modules/user/user.routes'
+
+
+
 const app = express()
-const port = 5000
+const port = config.port
 
-// parser to parse the incoming requests with JSON payloads
+// parser to parse  incoming requests with JSON payloads
 app.use(express.json())
 // to send formdata
 app.use(express.urlencoded())
 
-// create connection pool 
-const pool = new Pool({
-connectionString:  `${process.env.CONNECTION_STRING}`
-})
 
+// initializing DB
 
-const initDb = async ( )=> {
-    await pool.query(`CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    age INT,
-    phone VARCHAR(20),
-    address TEXT,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-  )`
-)
-
-await pool.query(`CREATE TABLE IF NOT EXISTS todos(
-    id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    is_completed BOOLEAN DEFAULT FALSE,
-    due_date DATE,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-    )`)
-
-}
 initDb()
 
-// logger middleware
-const logger = (req: Request, res: Response, next: NextFunction) => {
-  console.log(`${req.method} ${req.path} [${new Date().toISOString()}] \n`)
-  next()
-}
 
 
 
-app.get('/', logger, (req: Request, res: Response) => {
+
+app.get('/', (req: Request, res: Response) => {
   res.send('Hello Next level Developer!')
 })
 // users crud operations
 
 
+app.use("/users", userRouter )
 
-app.post("/users", async (req: Request, res: Response) => {
+
+
+// app.post("/users", async (req: Request, res: Response) => {
     
-const {name, email}= req.body
+// const {name, email}= req.body
 
-try {
-  const result = await pool.query(`INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *`, [name, email])
-    console.log(result.rows[0])
+// try {
+//   const result = await pool.query(`INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *`, [name, email])
+//     console.log(result.rows[0])
 
-    res.status(201).json({ success: true, message: "User inserted successfully", data: result.rows[0] })
+//     res.status(201).json({ success: true, message: "User inserted successfully", data: result.rows[0] })
 
-} catch (error : any) {
-    res.status(500).json({ success: false, message: error.message });
-}
+// } catch (error : any) {
+//     res.status(500).json({ success: false, message: error.message });
+// }
 
-});
-app.get("/users", async(req: Request, res: Response)=>{
-    try {
-        const result = await pool.query(`SELECT * FROM users`)
-        res.status(200).json({ success: true, data: result.rows })
-    } catch (error : any) {
-        res.status(500).json({ success: false, message: error.message, details: error });
-    }
-})
+// });
+
+
+
+app.use("/users", userRouter)
+
+
+
+// app.get("/users", async(req: Request, res: Response)=>{
+//     try {
+//         const result = await pool.query(`SELECT * FROM users`)
+//         res.status(200).json({ success: true, data: result.rows })
+//     } catch (error : any) {
+//         res.status(500).json({ success: false, message: error.message, details: error });
+//     }
+// })
 
 // get users by id 
+
+
+
+
+
 app.get("/users/:id", async (req: Request, res: Response)=>{
     try {
         const result = await pool.query(`SELECT * FROM users WHERE id = $1`, [req.params.id])
