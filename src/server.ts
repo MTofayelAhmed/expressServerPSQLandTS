@@ -1,4 +1,4 @@
-import express, { Request, Response }  from 'express'
+import express, { NextFunction, Request, Response }  from 'express'
 import {Pool} from "pg"
 import dotenv from 'dotenv'
 import path from "path"
@@ -45,9 +45,15 @@ await pool.query(`CREATE TABLE IF NOT EXISTS todos(
 }
 initDb()
 
+// logger middleware
+const logger = (req: Request, res: Response, next: NextFunction) => {
+  console.log(`${req.method} ${req.path} [${new Date().toISOString()}] \n`)
+  next()
+}
 
 
-app.get('/', (req: Request, res: Response) => {
+
+app.get('/', logger, (req: Request, res: Response) => {
   res.send('Hello Next level Developer!')
 })
 // users crud operations
