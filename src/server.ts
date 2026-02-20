@@ -144,6 +144,11 @@ app.get("/todos", async(req: Request, res: Response)=>{
     }
 })
 
+// adding 404 not found route 
+app.use((req: Request, res: Response)=>{
+    res.status(404).json({ success: false, message: "Route not found" })
+})
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
