@@ -5,6 +5,7 @@ import config from './config'
 import initDb, { pool } from './config/db'
 import logger from './middleware/logger'
 import { userRouter } from './modules/user/user.routes'
+import { userController } from './modules/user/user.controller'
 
 
 
@@ -35,70 +36,12 @@ app.use("/users", userRouter )
 
 
 
-// app.post("/users", async (req: Request, res: Response) => {
-    
-// const {name, email}= req.body
-
-// try {
-//   const result = await pool.query(`INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *`, [name, email])
-//     console.log(result.rows[0])
-
-//     res.status(201).json({ success: true, message: "User inserted successfully", data: result.rows[0] })
-
-// } catch (error : any) {
-//     res.status(500).json({ success: false, message: error.message });
-// }
-
-// });
-
-
-
-// app.use("/users", userRouter)
-
-
-
-// app.get("/users", async(req: Request, res: Response)=>{
-//     try {
-//         const result = await pool.query(`SELECT * FROM users`)
-//         res.status(200).json({ success: true, data: result.rows })
-//     } catch (error : any) {
-//         res.status(500).json({ success: false, message: error.message, details: error });
-//     }
-// })
-
-// get users by id 
 
 
 
 
 
-app.get("/users/:id", async (req: Request, res: Response)=>{
-    try {
-        const result = await pool.query(`SELECT * FROM users WHERE id = $1`, [req.params.id])
-        if(result.rows.length === 0){
-            return res.status(404).json({ success: false, message: "User not found" })
-        }
-        res.status(200).json({ success: true, data: result.rows[0] })
-    } catch (error : any) {
-        res.status(500).json({ success: false, message: error.message, details: error });
-    }
 
-})
-
-// update user by id 
-
-app.put("/users/:id", async (req: Request, res: Response)=>{
-    const {name, email} = req.body 
-    try {
-        const result = await pool.query(`UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING *`, [name, email, req.params.id])
-        if(result.rows.length === 0){
-            return res.status(404).json({ success: false, message: "User not found" })
-        }
-        res.status(200).json({ success: true, message: "User updated successfully", data: result.rows[0] })
-    } catch (error : any) {
-        res.status(500).json({ success: false, message: error.message, details: error });
-    }
-})
 
 // delete user by id 
 
