@@ -6,6 +6,7 @@ import initDb, { pool } from './config/db'
 import logger from './middleware/logger'
 import { userRouter } from './modules/user/user.routes'
 import { userController } from './modules/user/user.controller'
+import { todoRouter } from './modules/todo/todo.routes'
 
 
 
@@ -45,31 +46,15 @@ app.use("/users", userRouter )
 
 // delete user by id 
 
-app.delete("/users/:id", async (req: Request, res: Response)=>{
-    try {
-        const result = await pool.query(`DELETE FROM users WHERE id = $1 `, [req.params.id])
-        if(result.rowCount === 0){
-            return res.status(404).json({ success: false, message: "User not found" })
-        }
-        res.status(200).json({ success: true, data: null, message: "User deleted successfully" })
-    } catch (error : any) {
-        res.status(500).json({ success: false, message: error.message, details: error });
-    }
 
-})
 
 
 // todos crud operations
-app.post("/todos", async (req: Request, res: Response) => {
-    
-    const {user_id, title}= req.body
-    try {
-      const result = await pool.query(`INSERT INTO todos (user_id, title) VALUES($1, $2) RETURNING *`, [user_id, title])
-      res.status(201).json({ success: true, message: "Todo inserted successfully", data: result.rows[0] })
-    } catch (error : any) {
-      res.status(500).json({ success: false, message: error.message });
-    }
-})
+
+app.use("/todos", todoRouter)
+
+
+
 
 app.get("/todos", async(req: Request, res: Response)=>{
     try {
