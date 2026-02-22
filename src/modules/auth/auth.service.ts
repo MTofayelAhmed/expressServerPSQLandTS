@@ -19,3 +19,8 @@ const secret = "KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
 const token = jwt.sign({name: user.name, email: user.email}, secret, {expiresIn: "1h"})
 return {token, user}
 }
+
+
+export const authService = {
+    loginUser
+}
