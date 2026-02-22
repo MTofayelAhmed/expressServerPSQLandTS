@@ -7,6 +7,7 @@ import logger from './middleware/logger'
 import { userRouter } from './modules/user/user.routes'
 import { userController } from './modules/user/user.controller'
 import { todoRouter } from './modules/todo/todo.routes'
+import { authRoutes } from './modules/auth/auth.routes'
 
 
 
@@ -54,7 +55,8 @@ app.use("/users", userRouter )
 app.use("/todos", todoRouter)
 
 
-
+// auth routes
+app.use("/auth", authRoutes)
 
 app.get("/todos", async(req: Request, res: Response)=>{
     try {
