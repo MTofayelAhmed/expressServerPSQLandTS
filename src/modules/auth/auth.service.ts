@@ -1,6 +1,7 @@
 import { pool } from "../../config/db"
 import jwt from "jsonwebtoken"
 import bcrypt from 'bcryptjs';
+import config from "../../config";
 
 const loginUser = async (email: string, password: string)=> {
 
@@ -14,7 +15,7 @@ if(!match){
     return null // password does not match
 }
 
-const secret = "KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
+const secret = config.jwt_secret as string
 
 const token = jwt.sign({name: user.name, email: user.email}, secret, {expiresIn: "1h"})
 return {token, user}
